@@ -68,5 +68,7 @@ Guardar estadísticas en un archivo .csv para análisis externo.
 
 Permitir que el usuario juegue manualmente.
 
-## 👨‍💻 Autor
+## 👨‍💻 Autores
 Este proyecto fue desarrollado como parte de una práctica para estudiar agentes voraces y simulación de juegos.
+Alejandro Pinzon -alejandro09pf
+Juan David Sanchez - juandavid0420-rgb
