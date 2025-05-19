@@ -57,7 +57,7 @@ Tiempo promedio por partida: 0.0018 segundos
 
 ```bash
 python3 buscaminas.py
-
+```
 
 ## 📚 Posibles Mejoras
 Implementar un jugador más inteligente que use lógica deductiva.
