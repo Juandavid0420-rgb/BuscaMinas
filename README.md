@@ -1,8 +1,3 @@
-Aquí tienes el **README.md actualizado**, ahora incluye tanto el **jugador voraz (greedy)** como el nuevo **jugador de fuerza bruta (brute-force)**, con estructura clara y profesional, ideal para entrega académica o publicación en GitHub:
-
----
-
-````markdown
 # 🧠 Buscaminas con Jugadores Automáticos: Voraz y Fuerza Bruta
 
 Este proyecto implementa una versión del clásico juego **Buscaminas (Minesweeper)** en Python, acompañado por **dos jugadores automáticos** que intentan resolver el tablero de formas muy distintas:
@@ -75,19 +70,18 @@ Detecta la frontera de casillas alrededor de números visibles y **simula todas 
 🕒 Tiempo promedio por partida: 1.2389 segundos
 ✅ Porcentaje de juegos ganados: 92.00%
 ⏱️ Tiempo total para los 100 juegos: 0:02:03.895742
-````
+`
 
-```text
 🤖 Jugador: Voraz (Greedy)
 
 📊 Resultados después de 100 juegos:
 🕒 Tiempo promedio por partida: 0.0018 segundos
 ✅ Porcentaje de juegos ganados: 34.00%
 ⏱️ Tiempo total para los 100 juegos: 0:00:00.210846
-```
+
 
 > ⚠️ Nota: Las tasas de éxito pueden variar por la aleatoriedad y la información disponible en el tablero.
-
+```
 ---
 
 ## 🛠️ Requisitos
@@ -125,4 +119,3 @@ Este proyecto fue desarrollado como parte de un taller académico sobre agentes 
 * Alejandro Pinzón – [@alejandro09pf](https://github.com/alejandro09pf)
 * Juan David Sánchez – [@juandavid0420-rgb](https://github.com/juandavid0420-rgb)
 
-```
