@@ -1,57 +1,100 @@
-# 🧠 Buscaminas con Jugador Voraz (Greedy Minesweeper AI)
+Aquí tienes el **README.md actualizado**, ahora incluye tanto el **jugador voraz (greedy)** como el nuevo **jugador de fuerza bruta (brute-force)**, con estructura clara y profesional, ideal para entrega académica o publicación en GitHub:
 
-Este proyecto implementa una versión del clásico juego **Buscaminas (Minesweeper)** en Python, acompañado por un jugador automatizado **voraz** (greedy), que toma decisiones de forma simple para seleccionar su siguiente jugada.
+---
+
+````markdown
+# 🧠 Buscaminas con Jugadores Automáticos: Voraz y Fuerza Bruta
+
+Este proyecto implementa una versión del clásico juego **Buscaminas (Minesweeper)** en Python, acompañado por **dos jugadores automáticos** que intentan resolver el tablero de formas muy distintas:
+
+- 🤖 **Jugador Voraz (Greedy):** elige la primera casilla desconocida.
+- 🧠 **Jugador de Fuerza Bruta (Brute Force):** analiza todas las combinaciones posibles para seleccionar jugadas 100% seguras.
+
+---
 
 ## 🎯 Objetivo
 
-Evaluar el desempeño de un jugador voraz resolviendo el juego del Buscaminas, midiendo:
-- El número de partidas ganadas/perdidas.
-- El tiempo de ejecución por partida.
-- El comportamiento del algoritmo en múltiples ejecuciones.
+Evaluar y comparar el desempeño de dos estrategias automatizadas para resolver Buscaminas:
+
+- Número de partidas ganadas vs. perdidas.
+- Tiempo de ejecución por partida.
+- Impacto de la estrategia en entornos inciertos.
+
+---
 
 ## 📌 Características
 
-- Tablero de dimensiones configurables (`ROWS` x `COLUMNS`)
-- Generación aleatoria de minas sin repetir posiciones.
-- Interfaz de consola que muestra el tablero actualizado tras cada jugada.
-- Jugador voraz que selecciona siempre la primera casilla desconocida.
-- Garantía de que la **primera jugada no es una mina**.
-- Cálculo de estadísticas tras 100 partidas: tasa de victoria y tiempo promedio.
+- Tablero configurable (`ROWS` x `COLUMNS`)
+- Generación aleatoria de minas (sin repetir posiciones)
+- Garantía de que la **primera jugada nunca es una mina**
+- Interfaz de consola intuitiva y visual
+- Estadísticas automáticas tras 100 partidas:
+  - ✅ Tasa de victoria
+  - 🕒 Tiempo promedio
+  - ⏱️ Tiempo total
 
-## 🧠 Estrategia del Jugador Voraz
+---
 
-El jugador **no utiliza lógica probabilística ni inferencia**, simplemente selecciona la **primera casilla no revelada** del tablero en cada turno. Esto permite analizar cómo se comporta un enfoque simple ante un entorno incierto como el Buscaminas.
+## 🧠 Estrategias Implementadas
+
+### 1️⃣ Jugador Voraz (Greedy)
+Selecciona la **primera casilla no revelada** del tablero sin realizar ningún análisis adicional.
+
+- ✅ Muy rápido
+- ⚠️ Alto riesgo de fallar
+- 🧠 Sin inferencia
+
+### 2️⃣ Jugador de Fuerza Bruta
+Detecta la frontera de casillas alrededor de números visibles y **simula todas las combinaciones posibles** de minas. Elige una casilla que sea **segura en todas las combinaciones válidas**.
+
+- ✅ Muy seguro si hay información suficiente
+- ⏳ Lento por su complejidad (`O(2^n)` combinaciones)
+- 🧠 Inteligencia combinatoria
+
+---
 
 ## ⚙️ Estructura del Código
 
-- `create_board()` – Genera el tablero oculto y coloca minas.
-- `draw_board()` – Muestra el estado actual del tablero visible.
-- `get_index(i, j)` – Mapea coordenadas `(i, j)` a un índice lineal.
-- `get_ij(index)` – Mapea índice lineal a coordenadas `(i, j)`.
-- `get_neighbors(index)` – Devuelve los índices vecinos válidos.
-- `count_adjacent_mines(index)` – Cuenta minas adyacentes a una celda.
-- `reveal(index)` – Revela la casilla y propaga si es vacía.
-- `update_board(index)` – Procesa la jugada del jugador.
-- `has_won()` – Verifica si el jugador ganó.
-- `greedy_player()` – Implementa la lógica del jugador voraz.
-- `run_experiment()` – Ejecuta una partida completa.
-- `main()` – Ejecuta 100 partidas, mide tiempos y muestra estadísticas.
+- `create_board()` – Inicializa el tablero y las minas
+- `draw_board()` – Visualiza el tablero actual
+- `adjacent_squares(i, j)` – Retorna minas y vecinos de una casilla
+- `update_board(square)` – Revela una casilla y expande si está vacía
+- `greedy_player()` – Retorna la primera casilla desconocida
+- `brute_force_player()` – Analiza todas las combinaciones posibles y retorna una jugada segura
+- `run_custom_experiment()` – Ejecuta una partida automática
+- `main()` – Pregunta por el jugador, ejecuta 100 partidas y genera estadísticas
 
-## 📈 Estadísticas del Juego
+---
 
-Al ejecutar el script, se generan 100 partidas automáticas y se imprime un resumen como el siguiente:
+## 📈 Resultados de ejemplo
 
-Total de partidas: 100
-Ganadas: 38
-Perdidas: 62
-Tiempo promedio por partida: 0.0018 segundos
+```text
+🤖 Jugador: Fuerza Bruta
 
+📊 Resultados después de 100 juegos:
+🕒 Tiempo promedio por partida: 1.2389 segundos
+✅ Porcentaje de juegos ganados: 92.00%
+⏱️ Tiempo total para los 100 juegos: 0:02:03.895742
+````
 
-> Nota: Debido a la naturaleza aleatoria y la simpleza del jugador, las tasas de victoria pueden ser bajas.
+```text
+🤖 Jugador: Voraz (Greedy)
+
+📊 Resultados después de 100 juegos:
+🕒 Tiempo promedio por partida: 0.0018 segundos
+✅ Porcentaje de juegos ganados: 34.00%
+⏱️ Tiempo total para los 100 juegos: 0:00:00.210846
+```
+
+> ⚠️ Nota: Las tasas de éxito pueden variar por la aleatoriedad y la información disponible en el tablero.
+
+---
 
 ## 🛠️ Requisitos
 
-- Python 3.7 o superior
+* Python 3.7 o superior
+
+---
 
 ## 🚀 Cómo Ejecutar
 
@@ -59,16 +102,27 @@ Tiempo promedio por partida: 0.0018 segundos
 python3 buscaminas.py
 ```
 
+Al iniciar el programa, elige:
+
+* `1` para el jugador heurístico (greedy)
+* `2` para el jugador de fuerza bruta
+
+---
+
 ## 📚 Posibles Mejoras
-Implementar un jugador más inteligente que use lógica deductiva.
 
-Agregar una interfaz gráfica (por ejemplo, con tkinter).
+* Implementar un **jugador probabilístico** o basado en inferencia lógica
+* Agregar una **interfaz gráfica** (ej. con `tkinter`)
+* Guardar estadísticas en `.csv` para análisis posterior
+* Permitir que el usuario juegue manualmente contra el AI
 
-Guardar estadísticas en un archivo .csv para análisis externo.
-
-Permitir que el usuario juegue manualmente.
+---
 
 ## 👨‍💻 Autores
-Este proyecto fue desarrollado como parte de una práctica para estudiar agentes voraces y simulación de juegos.
-Alejandro Pinzon -alejandro09pf
-Juan David Sanchez - juandavid0420-rgb
+
+Este proyecto fue desarrollado como parte de un taller académico sobre agentes automatizados y simulación de decisiones.
+
+* Alejandro Pinzón – [@alejandro09pf](https://github.com/alejandro09pf)
+* Juan David Sánchez – [@juandavid0420-rgb](https://github.com/juandavid0420-rgb)
+
+```
