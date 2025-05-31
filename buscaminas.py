@@ -280,8 +280,7 @@ if __name__ == '__main__':
     N = 100
     tiempos = []
     exitos = 0
-    resultados_csv_fraccion = []
-    resultados_csv_porcentaje = []
+    resultados_csv = []
 
     print(f'🔁 Ejecutando {N} experimentos...\n')
 
@@ -292,53 +291,31 @@ if __name__ == '__main__':
         tiempos.append(dur)
         exitos += win
 
-        fila = {
+    resultados_csv.append({
         'Partida': i,
         'Tiempo (s)': f"{dur:.4f}",
         'Resultado': 'GANA' if win else 'PIERDE',
         'Estrategia': "Fuerza Bruta" if jugador == brute_force_player else "Greedy"
-    }
 
-    resultados_csv_fraccion.append(fila.copy())
-    resultados_csv_porcentaje.append(fila.copy())
+    })
 
-    # Agregamos las filas TOTAL en diferente formato
-    resultados_csv_fraccion.append({
-    'Partida': 'TOTAL',
-    'Tiempo (s)': f"{sum(tiempos):.4f}",
-    'Resultado': f"{exitos}/{N}",
-    'Estrategia': 'Resumen'
-})
-
-    resultados_csv_porcentaje.append({
-    'Partida': 'TOTAL',
-    'Tiempo (s)': f"{sum(tiempos):.4f}",
-    'Resultado': f"{(exitos / N) * 100:.2f}%",
-    'Estrategia': 'Resumen (%)'
-})
-
-
+    resultados_csv.append({
+        'Partida': 'TOTAL',
+        'Tiempo (s)': f"{sum(tiempos):.4f}",
+        'Resultado': f"{exitos}/{N}",
+        'Estrategia': 'Resumen'
+    })
 
 
 
     fin_total = datetime.now()
     tiempo_total = fin_total - inicio_total
-    # Definimos nombres de archivo
-nombre_archivo_fraccion = "buscaminas_resultados_fraccion.csv"
-nombre_archivo_porcentaje = "buscaminas_resultados_porcentaje.csv"
+    nombre_archivo = "resultados_buscaminas_greedy.csv" if jugador == greedy_player else "resultados_buscaminas_bruteforce.csv"
 
-# Guardamos el archivo con resultado en fracción
-with open(nombre_archivo_fraccion, mode='w', newline='', encoding='utf-8') as file:
+with open(nombre_archivo, mode='w', newline='', encoding='utf-8') as file:
     writer = csv.DictWriter(file, fieldnames=['Partida', 'Tiempo (s)', 'Resultado', 'Estrategia'])
     writer.writeheader()
-    writer.writerows(resultados_csv_fraccion)
-
-# Guardamos el archivo con resultado en porcentaje
-with open(nombre_archivo_porcentaje, mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.DictWriter(file, fieldnames=['Partida', 'Tiempo (s)', 'Resultado', 'Estrategia'])
-    writer.writeheader()
-    writer.writerows(resultados_csv_porcentaje)
-
+    writer.writerows(resultados_csv)
 
 
     promedio_tiempo = sum(tiempos) / N
@@ -348,6 +325,5 @@ with open(nombre_archivo_porcentaje, mode='w', newline='', encoding='utf-8') as 
     print(f'🕒 Tiempo promedio por partida: {promedio_tiempo:.4f} segundos')
     print(f'✅ Porcentaje de juegos ganados: {porcentaje_exito:.2f}%')
     print(f'⏱️ Tiempo total para los {N} juegos: {tiempo_total}')
-    print(f'📁 Archivo CSV guardado como (resultado en fracción): {nombre_archivo_fraccion}')
-    print(f'📁 Archivo CSV guardado como (resultado en porcentaje): {nombre_archivo_porcentaje}')
+    print(f'📁 Archivo CSV guardado como: {nombre_archivo}')
 
