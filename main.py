@@ -1,6 +1,8 @@
 import math
 import random
 import time
+import itertools
+import datetime
 
 # Tamaño del tablero y número de minas
 ROWS = 10
@@ -149,7 +151,7 @@ def run_experiment(verbose=False):
     update_board((first_i, first_j))
 
     while True:
-        square = greedy_player()
+        square =  brute_force_player()
         mine_hit = update_board(square)
         if mine_hit or has_won():
             break
@@ -164,30 +166,137 @@ def run_experiment(verbose=False):
 
     return duration, won
 
+def brute_force_player():
+    frontier = set()
+    numbered = []
+
+    # 1. Identificar la frontera (casillas desconocidas adyacentes a números)
+    for i in range(ROWS):
+        for j in range(COLUMNS):
+            if isinstance(MATRIX[i][j], int) and MATRIX[i][j] > 0:
+                numbered.append((i, j))
+                for di in [-1, 0, 1]:
+                    for dj in [-1, 0, 1]:
+                        ni, nj = i + di, j + dj
+                        if 0 <= ni < ROWS and 0 <= nj < COLUMNS and MATRIX[ni][nj] == '?':
+                            frontier.add((ni, nj))
+
+    frontier = list(frontier)
+    safe_counts = {square: 0 for square in frontier}
+    total_valid = 0
+
+    # 2. Probar TODAS las combinaciones posibles de minas en la frontera
+    for bits in itertools.product([True, False], repeat=len(frontier)):
+        mines = {frontier[i] for i in range(len(bits)) if bits[i]}
+        
+        # Validar esta configuración
+        valid = True
+        for i, j in numbered:
+            count = 0
+            for di in [-1, 0, 1]:
+                for dj in [-1, 0, 1]:
+                    ni, nj = i + di, j + dj
+                    if (ni, nj) in mines:
+                        count += 1
+            if count != MATRIX[i][j]:
+                valid = False
+                break
+        
+        if valid:
+            total_valid += 1
+            for square in frontier:
+                if square not in mines:
+                    safe_counts[square] += 1
+
+    # 3. Buscar una casilla que sea segura en TODAS las configuraciones válidas
+    for square, count in safe_counts.items():
+        if count == total_valid and total_valid > 0:
+            return square  # 100% segura
+
+    # Si no se encontró ninguna segura, volver al jugador heurístico
+    return greedy_player()
 
 # ---------------------------------------------------------------
 # ⚙️ PUNTO DE ENTRADA
+from datetime import datetime
+
 if __name__ == '__main__':
-    # 🔹 Primero se ejecuta UNA partida y se muestra el tablero
-    print("🧪 Ejecutando una partida ejemplo con tablero visible:\n")
-    dur, win = run_experiment(verbose=True)
+    print("🤖 Taller 4 - Buscaminas: Comparador de Jugadores Automáticos")
+    print("Seleccione el jugador a evaluar:")
+    print("1️⃣  - Jugador heurístico (greedy)")
+    print("2️⃣  - Jugador de fuerza bruta (brute force)")
+    opcion = input("Ingrese 1 o 2: ")
+
+    if opcion == '1':
+        jugador = greedy_player
+        print("\n▶️ Ejecutando partida de prueba con jugador heurístico...\n")
+    elif opcion == '2':
+        jugador = brute_force_player
+        print("\n▶️ Ejecutando partida de prueba con jugador de fuerza bruta...\n")
+    else:
+        print("❌ Opción no válida.")
+        exit()
+
+    def run_custom_experiment(jugador_func, verbose=False):
+        global BOARD, MINES, EXTENDED, MATRIX
+        BOARD = []
+        MINES = set()
+        EXTENDED = set()
+        MATRIX = [['?'] * COLUMNS for _ in range(ROWS)]
+
+        first_i = random.randint(0, ROWS - 1)
+        first_j = random.randint(0, COLUMNS - 1)
+        first_index = get_index(first_i, first_j)
+
+        while True:
+            create_board()
+            if first_index not in MINES:
+                break
+
+        start_time = time.time()
+        update_board((first_i, first_j))
+
+        while True:
+            square = jugador_func()
+            mine_hit = update_board(square)
+            if mine_hit or has_won():
+                break
+
+        end_time = time.time()
+        duration = end_time - start_time
+        won = 0 if mine_hit else 1
+
+        if verbose:
+            print(draw_board())
+            print("Resultado:", "GANÓ" if won else "PERDIÓ", f"Tiempo: {duration:.4f}s")
+
+        return duration, won
+
+    # 🔹 Ejecutar una partida visible
+    dur, win = run_custom_experiment(jugador, verbose=True)
     print("🔚 Fin de la partida\n")
 
-    # 🔹 Luego se ejecutan los 100 experimentos silenciosos
+    # 🔹 Ejecutar 100 partidas automáticas
     N = 100
     tiempos = []
     exitos = 0
 
-    print('🔁 Ejecutando 100 experimentos con el jugador voraz...')
+    print(f'🔁 Ejecutando {N} experimentos...\n')
+
+    inicio_total = datetime.now()
 
     for i in range(N):
-        dur, win = run_experiment()
+        dur, win = run_custom_experiment(jugador)
         tiempos.append(dur)
         exitos += win
+
+    fin_total = datetime.now()
+    tiempo_total = fin_total - inicio_total
 
     promedio_tiempo = sum(tiempos) / N
     porcentaje_exito = (exitos / N) * 100
 
-    print(f'\n📊 Resultados después de {N} juegos:')
+    print(f'📊 Resultados después de {N} juegos:')
     print(f'🕒 Tiempo promedio por partida: {promedio_tiempo:.4f} segundos')
     print(f'✅ Porcentaje de juegos ganados: {porcentaje_exito:.2f}%')
+    print(f'⏱️ Tiempo total para los {N} juegos: {tiempo_total}')
