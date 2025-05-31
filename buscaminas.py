@@ -228,10 +228,10 @@ if __name__ == '__main__':
 
     if opcion == '1':
         jugador = greedy_player
-        print("\n▶️ Ejecutando partida de prueba con jugador heurístico...\n")
+        print("\n▶️ Ejecutando partida con jugador heurístico...\n")
     elif opcion == '2':
         jugador = brute_force_player
-        print("\n▶️ Ejecutando partida de prueba con jugador de fuerza bruta...\n")
+        print("\n▶️ Ejecutando partida con jugador de fuerza bruta...\n")
     else:
         print("❌ Opción no válida.")
         exit()
