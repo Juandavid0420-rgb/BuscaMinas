@@ -27,6 +27,10 @@ Evaluar y comparar el desempeño de dos estrategias automatizadas para resolver 
   - ✅ Tasa de victoria
   - 🕒 Tiempo promedio
   - ⏱️ Tiempo total
+  - 📁 Exportación automática de resultados en **archivos CSV** con dos variantes:
+  - `resultados_buscaminas_*.csv` → con porcentaje de victorias (ej. `34.00%`)
+  - `resultados_buscaminas_*(fraccion).csv` → con conteo (ej. `34/100`)
+
 
 ---
 
@@ -70,7 +74,8 @@ Detecta la frontera de casillas alrededor de números visibles y **simula todas 
 🕒 Tiempo promedio por partida: 1.2389 segundos
 ✅ Porcentaje de juegos ganados: 92.00%
 ⏱️ Tiempo total para los 100 juegos: 0:02:03.895742
-`
+📁 CSV guardado: resultados_buscaminas_bruteforce.csv
+📁 CSV resumen fracción: resultados_buscaminas_bruteforce(fraccion).csv
 
 🤖 Jugador: Voraz (Greedy)
 
@@ -78,7 +83,8 @@ Detecta la frontera de casillas alrededor de números visibles y **simula todas 
 🕒 Tiempo promedio por partida: 0.0018 segundos
 ✅ Porcentaje de juegos ganados: 34.00%
 ⏱️ Tiempo total para los 100 juegos: 0:00:00.210846
-
+📁 CSV guardado: resultados_buscaminas_greedy.csv
+📁 CSV resumen fracción: resultados_buscaminas_greedy(fraccion).csv
 
 > ⚠️ Nota: Las tasas de éxito pueden variar por la aleatoriedad y la información disponible en el tablero.
 ```
