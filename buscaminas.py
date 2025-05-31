@@ -3,6 +3,7 @@ import random
 import time
 import itertools
 import datetime
+import csv
 
 # Tamaño del tablero y número de minas
 ROWS = 10
@@ -14,6 +15,8 @@ BOARD = []        # Representación visual del tablero lineal
 MINES = set()     # Conjunto de índices donde hay minas
 EXTENDED = set()  # Índices de casillas ya reveladas
 MATRIX = [['?'] * COLUMNS for i in range(ROWS)]  # Matriz para los valores visibles
+LAST_STRATEGY_USED = "Unknown"
+
 
 # Colores para la impresión en consola
 class Colors(object):
@@ -44,7 +47,8 @@ def create_board():
 
     while len(MINES) < MINE_COUNT:
         MINES.add(random.randint(0, squares - 1))  # Se agregan minas aleatorias
-
+            # cambie esta linea por la de arriba ya que hacen lo mismo pero la de arriba es mas eficiente:  
+            # MINES.add(int(math.floor(random.random() * squares)))
 def draw_board():
     """Dibuja el tablero con coordenadas en la consola."""
     lines = []
@@ -120,6 +124,8 @@ def has_won():
 
 def greedy_player():
     """Jugador simple que elige la primera casilla no revelada."""
+    global LAST_STRATEGY_USED
+    LAST_STRATEGY_USED = "Greedy"
     options = []
     for i in range(ROWS):
         for j in range(COLUMNS):
@@ -127,50 +133,14 @@ def greedy_player():
                 options.append((i, j))
     return options[0] if options else (0, 0)
 
-def run_experiment(verbose=False):
-    global BOARD, MINES, EXTENDED, MATRIX
-    BOARD = []
-    MINES = set()
-    EXTENDED = set()
-    MATRIX = [['?'] * COLUMNS for _ in range(ROWS)]
-    
-    # Elegir primera jugada aleatoria
-    first_i = random.randint(0, ROWS - 1)
-    first_j = random.randint(0, COLUMNS - 1)
-    first_index = get_index(first_i, first_j)
-
-    # Crear tablero evitando poner mina en la primera jugada
-    while True:
-        create_board()
-        if first_index not in MINES:
-            break
-
-    start_time = time.time()
-
-    # Ejecutar la primera jugada segura
-    update_board((first_i, first_j))
-
-    while True:
-        square =  brute_force_player()
-        mine_hit = update_board(square)
-        if mine_hit or has_won():
-            break
-
-    end_time = time.time()
-    duration = end_time - start_time
-    won = 0 if mine_hit else 1
-
-    if verbose:
-        print(draw_board())
-        print("Resultado:", "GANÓ" if won else "PERDIÓ", f"Tiempo: {duration:.4f}s")
-
-    return duration, won
 
 def brute_force_player():
+    global LAST_STRATEGY_USED
+    LAST_STRATEGY_USED = "Brute Force"
     frontier = set()
     numbered = []
 
-    # 1. Identificar la frontera (casillas desconocidas adyacentes a números)
+    # 1. Identificar casillas frontera (adyacentes a números visibles)
     for i in range(ROWS):
         for j in range(COLUMNS):
             if isinstance(MATRIX[i][j], int) and MATRIX[i][j] > 0:
@@ -182,14 +152,27 @@ def brute_force_player():
                             frontier.add((ni, nj))
 
     frontier = list(frontier)
-    safe_counts = {square: 0 for square in frontier}
-    total_valid = 0
 
-    # 2. Probar TODAS las combinaciones posibles de minas en la frontera
+    if not frontier:
+        print("[DEBUG] Frontera vacía. No hay jugada deducible.")
+        LAST_STRATEGY_USED = "Greedy"
+        return greedy_player()
+
+    MAX_FRONTIER = 20
+    if len(frontier) > MAX_FRONTIER:
+        print(f"[DEBUG] Frontera demasiado grande ({len(frontier)} casillas). Usando heurístico.")
+        LAST_STRATEGY_USED = "Greedy"
+        return greedy_player()
+    else:
+        print(f"[DEBUG] Usando fuerza bruta con frontera de {len(frontier)} casillas.")
+
+    # ✅ Aquí se inicializa correctamente
+    safe_counts = {square: 0 for square in frontier}
+    total_valid = 0  # <- ¡Esta línea debe estar antes de usarla!
+
     for bits in itertools.product([True, False], repeat=len(frontier)):
         mines = {frontier[i] for i in range(len(bits)) if bits[i]}
-        
-        # Validar esta configuración
+
         valid = True
         for i, j in numbered:
             count = 0
@@ -201,20 +184,29 @@ def brute_force_player():
             if count != MATRIX[i][j]:
                 valid = False
                 break
-        
+
         if valid:
             total_valid += 1
             for square in frontier:
                 if square not in mines:
                     safe_counts[square] += 1
 
-    # 3. Buscar una casilla que sea segura en TODAS las configuraciones válidas
-    for square, count in safe_counts.items():
-        if count == total_valid and total_valid > 0:
-            return square  # 100% segura
+    if total_valid == 0:
+        print("[DEBUG] Ninguna combinación es válida. Usando heurístico.")
+        LAST_STRATEGY_USED = "Greedy"
+        return greedy_player()
+    else:
+        print(f"[DEBUG] Combinaciones válidas encontradas: {total_valid}")
 
-    # Si no se encontró ninguna segura, volver al jugador heurístico
+    for square, count in safe_counts.items():
+        if count == total_valid:
+            return square
+
+    print("[DEBUG] Ninguna casilla segura al 100%. Usando heurístico.")
+    LAST_STRATEGY_USED = "Greedy"
     return greedy_player()
+
+
 
 # ---------------------------------------------------------------
 # ⚙️ PUNTO DE ENTRADA
@@ -256,6 +248,7 @@ if __name__ == '__main__':
         start_time = time.time()
         update_board((first_i, first_j))
 
+
         while True:
             square = jugador_func()
             mine_hit = update_board(square)
@@ -280,18 +273,35 @@ if __name__ == '__main__':
     N = 100
     tiempos = []
     exitos = 0
+    resultados_csv = []
 
     print(f'🔁 Ejecutando {N} experimentos...\n')
 
     inicio_total = datetime.now()
 
-    for i in range(N):
+    for i in range(1, N + 1):
         dur, win = run_custom_experiment(jugador)
         tiempos.append(dur)
         exitos += win
 
+    resultados_csv.append({
+        'Partida': i,
+        'Tiempo (s)': f"{dur:.4f}",
+        'Resultado': 'GANA' if win else 'PIERDE',
+        'Estrategia': LAST_STRATEGY_USED
+    })
+
+
+
     fin_total = datetime.now()
     tiempo_total = fin_total - inicio_total
+    nombre_archivo = "resultados_buscaminas_greedy.csv" if jugador == greedy_player else "resultados_buscaminas_bruteforce.csv"
+
+with open(nombre_archivo, mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.DictWriter(file, fieldnames=['Partida', 'Tiempo (s)', 'Resultado', 'Estrategia'])
+    writer.writeheader()
+    writer.writerows(resultados_csv)
+
 
     promedio_tiempo = sum(tiempos) / N
     porcentaje_exito = (exitos / N) * 100
@@ -300,3 +310,5 @@ if __name__ == '__main__':
     print(f'🕒 Tiempo promedio por partida: {promedio_tiempo:.4f} segundos')
     print(f'✅ Porcentaje de juegos ganados: {porcentaje_exito:.2f}%')
     print(f'⏱️ Tiempo total para los {N} juegos: {tiempo_total}')
+    print(f'📁 Archivo CSV guardado como: {nombre_archivo}')
+
