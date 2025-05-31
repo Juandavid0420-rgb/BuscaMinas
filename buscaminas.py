@@ -5,6 +5,8 @@ import itertools
 import datetime
 import csv
 
+DEBUG = False #Cambiar a True para ver los mensajes de depuración
+
 # Tamaño del tablero y número de minas
 ROWS = 10
 COLUMNS = 10
@@ -154,21 +156,24 @@ def brute_force_player():
     frontier = list(frontier)
 
     if not frontier:
-        print("[DEBUG] Frontera vacía. No hay jugada deducible.")
+        if DEBUG:
+            print("[DEBUG] Frontera vacía. No hay jugada deducible.")
         LAST_STRATEGY_USED = "Greedy"
         return greedy_player()
 
     MAX_FRONTIER = 20
     if len(frontier) > MAX_FRONTIER:
-        print(f"[DEBUG] Frontera demasiado grande ({len(frontier)} casillas). Usando heurístico.")
+        if DEBUG:
+            print(f"[DEBUG] Frontera demasiado grande ({len(frontier)} casillas). Usando heurístico.")
         LAST_STRATEGY_USED = "Greedy"
         return greedy_player()
     else:
-        print(f"[DEBUG] Usando fuerza bruta con frontera de {len(frontier)} casillas.")
+        if DEBUG:
+            print(f"[DEBUG] Usando fuerza bruta con frontera de {len(frontier)} casillas.")
 
-    # ✅ Aquí se inicializa correctamente
+
     safe_counts = {square: 0 for square in frontier}
-    total_valid = 0  # <- ¡Esta línea debe estar antes de usarla!
+    total_valid = 0 
 
     for bits in itertools.product([True, False], repeat=len(frontier)):
         mines = {frontier[i] for i in range(len(bits)) if bits[i]}
@@ -192,17 +197,19 @@ def brute_force_player():
                     safe_counts[square] += 1
 
     if total_valid == 0:
-        print("[DEBUG] Ninguna combinación es válida. Usando heurístico.")
+        if DEBUG:
+            print("[DEBUG] Ninguna combinación es válida. Usando heurístico.")
         LAST_STRATEGY_USED = "Greedy"
         return greedy_player()
     else:
-        print(f"[DEBUG] Combinaciones válidas encontradas: {total_valid}")
+        if DEBUG:
+            print(f"[DEBUG] Combinaciones válidas encontradas: {total_valid}")
 
     for square, count in safe_counts.items():
         if count == total_valid:
             return square
-
-    print("[DEBUG] Ninguna casilla segura al 100%. Usando heurístico.")
+    if DEBUG:
+        print("[DEBUG] Ninguna casilla segura al 100%. Usando heurístico.")
     LAST_STRATEGY_USED = "Greedy"
     return greedy_player()
 
@@ -288,8 +295,17 @@ if __name__ == '__main__':
         'Partida': i,
         'Tiempo (s)': f"{dur:.4f}",
         'Resultado': 'GANA' if win else 'PIERDE',
-        'Estrategia': LAST_STRATEGY_USED
+        'Estrategia': "Fuerza Bruta" if jugador == brute_force_player else "Greedy"
+
     })
+
+    resultados_csv.append({
+        'Partida': 'TOTAL',                              # Texto especial para marcar el resumen
+        'Tiempo (s)': f"{sum(tiempos):.4f}",             # Tiempo total sumado
+        'Resultado': f"{(exitos / N) * 100:.2f}%",        # Porcentaje de partidas ganadas
+        'Estrategia': 'Resumen'                          # Etiqueta de que es resumen
+    })
+
 
 
 
